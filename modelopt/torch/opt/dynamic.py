@@ -258,7 +258,6 @@ class _DMAttributeManager:
     def get_da_cb(self, name: str) -> _FoldedCallback:
         """Return the full callback for the dynamic attribute."""
         cbs_all = list(chain.from_iterable(cb_d[name] for cb_d in self._da_cb_all if name in cb_d))
-        print(f"cbs_all: {cbs_all}", flush=True)
         return _FoldedCallback(*cbs_all)
 
     @contextmanager
