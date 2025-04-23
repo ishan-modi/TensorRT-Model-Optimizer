@@ -75,7 +75,7 @@ class FP8QTensor(BaseQuantizedTensor):
 
         # Determine the expected scales shape from the (possibly padded) input
         expected_shape = list(input.shape)
-        expanded_scales = scales.clone()
+        expanded_scales = scales
         if block_sizes:
             for dim, block_size in block_sizes.items():
                 # Convert negative indices to positive ones.
