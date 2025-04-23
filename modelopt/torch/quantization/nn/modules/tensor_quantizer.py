@@ -541,6 +541,7 @@ class TensorQuantizer(nn.Module):
             outputs, _scale = FP8QTensor.quantize(
                 inputs, axis=self._axis, block_sizes=self._block_sizes
             )
+            print(_scale.shape, _scale.dtype)
             buffer_to_register["_scale"] = _scale
         elif self._block_sizes.get("scale_bits", 0) == 8 and self._block_sizes.get(
             "scale_block_sizes", None
@@ -567,6 +568,7 @@ class TensorQuantizer(nn.Module):
             buffer_to_register["_double_scale"] = _weights_scaling_factor_2
         else:
             outputs, _scale = INT4QTensor.quantize(inputs, self._block_sizes[-1])
+            print(_scale.shape, _scale.dtype)
             buffer_to_register["_scale"] = _scale
         for k, v in buffer_to_register.items():
             self.register_buffer(k, v)
