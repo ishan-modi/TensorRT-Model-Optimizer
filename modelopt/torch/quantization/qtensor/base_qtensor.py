@@ -157,8 +157,6 @@ def pack_real_quantize_weight(module, force_quantize: bool = False):
                 if force_quantize:
                     m.weight_quantizer._dequantize = False
 
-                print(m, flush=True)
-                print(type(m.weight), flush=True)
                 assert not m.weight.is_meta, (
                     "Real quantization does not support tensors on meta device."
                 )

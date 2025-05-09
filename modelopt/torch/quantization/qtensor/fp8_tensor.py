@@ -90,8 +90,6 @@ class FP8QTensor(BaseQuantizedTensor):
 
             # If we get amax from tensor_quantizer, it might not be the expected shape but has the
             # same number of elements, reshape it.
-            print(scales.shape, tuple(expected_shape), flush=True)
-            print(scales.numel(), math.prod(expected_shape), flush=True)
             if scales.shape != tuple(expected_shape) and scales.numel() == math.prod(
                 expected_shape
             ):

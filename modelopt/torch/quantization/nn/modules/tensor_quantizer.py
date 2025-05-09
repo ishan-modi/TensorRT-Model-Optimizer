@@ -560,7 +560,6 @@ class TensorQuantizer(nn.Module):
         if self._num_bits == (4, 3):
             # FP8 quantization
             # For per-tensor/per-channel quantization, we might need amax which is synced across all ranks
-            print('amax', self.amax, flush=True)
             outputs, _scale = FP8QTensor.quantize(
                 inputs,
                 axis=self._axis,
@@ -572,7 +571,6 @@ class TensorQuantizer(nn.Module):
             outputs, _scale = INT8QTensor.quantize(
                 inputs, axis=self._axis, block_sizes=self._block_sizes
             )
-            print(_scale.shape, _scale.dtype)
             buffer_to_register["_scale"] = _scale
         elif self._block_sizes.get("scale_bits", 0) == 8 and self._block_sizes.get(
             "scale_block_sizes", None
@@ -602,7 +600,6 @@ class TensorQuantizer(nn.Module):
             buffer_to_register["_double_scale"] = _weights_scaling_factor_2
         else:
             outputs, _scale = INT4QTensor.quantize(inputs, self._block_sizes[-1])
-            print(_scale.shape, _scale.dtype)
             buffer_to_register["_scale"] = _scale
         for k, v in buffer_to_register.items():
             self.register_buffer(k, v)
@@ -1184,10 +1181,7 @@ class TensorQuantizer(nn.Module):
             self.bias_calibrator.collect(inputs)
             inputs = inputs - self.bias_calibrator.compute_bias()
 
-        print(inputs.shape, flush=True)
-        print(self.amax, flush=True)
         self._calibrator.collect(inputs)
-        print(self.amax, flush=True)
 
 
 class SequentialQuantizer(nn.Sequential):
