@@ -31,6 +31,7 @@ from modelopt.torch.quantization.qtensor import QTensorWrapper
     "config",
     [
         mtq.INT4_AWQ_CFG,
+        mtq.INT8_DEFAULT_CFG,
         mtq.FP8_DEFAULT_CFG,
         mtq.FP8_2D_BLOCKWISE_WEIGHT_ONLY_CFG,
         mtq.FP8_PER_CHANNEL_PER_TOKEN_CFG,
@@ -82,6 +83,7 @@ def test_real_quantize(model_cls, config):
     "config",
     [
         mtq.INT4_AWQ_CFG,
+        mtq.INT8_DEFAULT_CFG,
         mtq.FP8_DEFAULT_CFG,
         mtq.FP8_2D_BLOCKWISE_WEIGHT_ONLY_CFG,
         mtq.FP8_PER_CHANNEL_PER_TOKEN_CFG,
@@ -105,6 +107,7 @@ def test_save_restore(model_cls, config):
     "quant_config",
     [
         mtq.INT4_AWQ_CFG,
+        mtq.INT8_DEFAULT_CFG,
         mtq.FP8_DEFAULT_CFG,
         mtq.FP8_2D_BLOCKWISE_WEIGHT_ONLY_CFG,
         mtq.FP8_PER_CHANNEL_PER_TOKEN_CFG,
@@ -147,7 +150,7 @@ def test_compress_config(model_cls, quant_config, compress_config):
                 output.sum().backward()
 
     mtq.quantize(model, quant_config, forward_loop)
-    mtq.compress(model, compress_config=compress_config)
+    mtq.compress(model, config={"compress": compress_config})
 
     # Verify compression based on config
     for name, module in model.named_modules():

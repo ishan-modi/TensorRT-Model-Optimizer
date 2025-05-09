@@ -60,6 +60,43 @@ class TestQTensor:
         # Verify the dequantized tensor is close to the original tensor
         assert torch.allclose(deq_x, x, rtol=1e-1, atol=1e-1)
 
+    @pytest.mark.parametrize(
+        "num_bits, block_sizes, scale_lambda, scale_to_check",
+        [
+            (
+                (2, 1),
+                {-1: 16, "type": "dynamic", "scale_bits": (4, 3)},
+                lambda x: x / 448.0 / 6.0,
+                "_double_scale",
+            ),  # NVFP4
+            ((4, 3), None, lambda x: x / 448.0, "_scale"),  # FP8
+        ],
+    )
+    @pytest.mark.parametrize("input_dtype", [torch.float32, torch.float16, torch.bfloat16])
+    @pytest.mark.parametrize("device", ["cuda"])
+    def test_amax_from_tensor_quantizer(
+        self, num_bits, block_sizes, scale_lambda, scale_to_check, device, input_dtype
+    ):
+        # Test FP8 and NVFP4 can get amax from tensor quantizer
+        quant_cfg = QuantizerAttributeConfig(
+            num_bits=num_bits,
+            block_sizes=block_sizes,
+            fake_quant=False,
+        )
+        quantizer = TensorQuantizer(quant_cfg).to(device)
+
+        # Mock amax
+        mock_amax = torch.rand(1, device=device)
+        quantizer.amax = mock_amax
+
+        x = torch.rand(32, 32).to(device).to(dtype=input_dtype)
+        _ = quantizer(x)
+
+        assert hasattr(quantizer, scale_to_check)
+        assert torch.allclose(
+            getattr(quantizer, scale_to_check), scale_lambda(mock_amax).to(device)
+        )
+
     # Validate the result is consistent with reference implementation
     @pytest.mark.parametrize(
         "num_bits, block_sizes, axis, test_input, test_output",
@@ -106,6 +143,28 @@ class TestQTensor:
                 torch.tensor([[0, 1, 2, 3, 4, 5, 6, 7, 3]], dtype=torch.bfloat16),
                 torch.tensor(
                     [[0.0000, 0.8516, 2.1406, 2.9844, 4.0000, 5.0000, 6.0000, 7.0000, 2.9844]],
+                    dtype=torch.bfloat16,
+                ),
+            ),
+            # INT8 per channel quantization
+            (
+                8,
+                None,
+                0,
+                torch.tensor([[0, 1, 2, 3, 4, 5, 6, 7]], dtype=torch.bfloat16),
+                torch.tensor(
+                    [[0.0000, 0.9922, 1.9844, 2.9844, 3.9688, 4.9688, 5.9688, 7.0000]],
+                    dtype=torch.bfloat16,
+                ),
+            ),
+            # INT8 2D block quantization
+            (
+                8,
+                {-1: 2, -2: 2},
+                None,
+                torch.tensor([[0, 1, 2, 3], [4, 5, 6, 7]], dtype=torch.bfloat16),
+                torch.tensor(
+                    [[0.0000, 1.0234, 1.9844, 2.9844], [4.0000, 5.0000, 5.9688, 7.0000]],
                     dtype=torch.bfloat16,
                 ),
             ),
