@@ -178,6 +178,7 @@ def finish_stats_collection(model: nn.Module, method: Optional[str] = None):
         print('final stats', flush=True)
         if isinstance(module, TensorQuantizer) and not module._disabled:
             print(module._calibrator, flush=True)
+            print(module)
             if module._calibrator is not None and not module._dynamic:
                 if method in ["mse", "entropy"]:
                     if module._calibrator.compute_amax(method) is not None:
