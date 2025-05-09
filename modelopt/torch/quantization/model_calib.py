@@ -65,6 +65,7 @@ def max_calibrate(
                     continue
                 if is_quantized_layer_with_weight(module) and hasattr(module, "weight_quantizer"):
                     print("max calib", flush=True)
+                    print(module.weight, module.weight.device, flush=True)
                     module.weight_quantizer(module.weight)
                     seen_modules.add(module)
 
@@ -179,7 +180,6 @@ def finish_stats_collection(model: nn.Module, method: Optional[str] = None):
         if isinstance(module, TensorQuantizer) and not module._disabled:
             print(module._calibrator, flush=True)
             print(module, flush=True)
-            print(module.weight, module.weight.device, flush=True)
             if module._calibrator is not None and not module._dynamic:
                 if method in ["mse", "entropy"]:
                     if module._calibrator.compute_amax(method) is not None:
