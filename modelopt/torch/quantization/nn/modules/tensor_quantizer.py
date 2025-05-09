@@ -560,6 +560,7 @@ class TensorQuantizer(nn.Module):
         if self._num_bits == (4, 3):
             # FP8 quantization
             # For per-tensor/per-channel quantization, we might need amax which is synced across all ranks
+            print('amax', self.amax, flush=True)
             outputs, _scale = FP8QTensor.quantize(
                 inputs,
                 axis=self._axis,
