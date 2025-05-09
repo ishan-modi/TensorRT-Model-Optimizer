@@ -1184,7 +1184,10 @@ class TensorQuantizer(nn.Module):
             self.bias_calibrator.collect(inputs)
             inputs = inputs - self.bias_calibrator.compute_bias()
 
+        print(inputs.shape, flush=True)
+        print(self.amax, flush=True)
         self._calibrator.collect(inputs)
+        print(self.amax, flush=True)
 
 
 class SequentialQuantizer(nn.Sequential):
