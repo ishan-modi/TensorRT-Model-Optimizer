@@ -64,6 +64,7 @@ def max_calibrate(
                 if module in seen_modules:
                     continue
                 if is_quantized_layer_with_weight(module) and hasattr(module, "weight_quantizer"):
+                    print("max calib", flush=True)
                     module.weight_quantizer(module.weight)
                     seen_modules.add(module)
 
@@ -174,6 +175,8 @@ def enable_stats_collection(model: nn.Module):
 def finish_stats_collection(model: nn.Module, method: Optional[str] = None):
     """Finish stats collection for all quantizers in the model."""
     for name, module in model.named_modules():
+        print('final stats', flush=True)
+        print(module._calibrator, flush=True)
         if isinstance(module, TensorQuantizer) and not module._disabled:
             if module._calibrator is not None and not module._dynamic:
                 if method in ["mse", "entropy"]:
