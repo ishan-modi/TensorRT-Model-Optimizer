@@ -176,8 +176,8 @@ def finish_stats_collection(model: nn.Module, method: Optional[str] = None):
     """Finish stats collection for all quantizers in the model."""
     for name, module in model.named_modules():
         print('final stats', flush=True)
-        print(module._calibrator, flush=True)
         if isinstance(module, TensorQuantizer) and not module._disabled:
+            print(module._calibrator, flush=True)
             if module._calibrator is not None and not module._dynamic:
                 if method in ["mse", "entropy"]:
                     if module._calibrator.compute_amax(method) is not None:
